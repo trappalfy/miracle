@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Miracle">
+  <!--
+    The favicon is the sparkle from the wordmark, alone.
+
+    At 16px the word "miracle" is a grey smear and the logo's second, smaller
+    sparkle is two dirty pixels, so the mark reduces to the one shape that still
+    reads at that size.
+
+    The curves are cut deeper than the wordmark's. Its control points sit at
+    ±1.9 from centre, which is right beside type at 7px but collapses into a
+    plain diamond once the shape stands alone in a tab. At ±0.9 the four points
+    survive the 16px grid. Same shape, corrected for the size it is read at.
+
+    The ground is solid black rather than transparent on purpose: the sparkle is
+    ivory and would vanish against a light tab bar. Black is also what the
+    product is, so the tile is a lit panel at 16 pixels. No bloom — the haze
+    costs edge contrast at exactly the size that needs it most.
+  -->
+  <rect width="32" height="32" rx="7" fill="#000000" />
+  <path
+    transform="translate(3 3) scale(1.0833333)"
+    d="M12 0 Q12.90 11.10 24 12 Q12.90 12.90 12 24 Q11.10 12.90 0 12 Q11.10 11.10 12 0 Z"
+    fill="#F2EBDD"
+  />
+</svg>

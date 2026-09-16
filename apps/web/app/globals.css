@@ -1,0 +1,312 @@
+@import "tailwindcss";
+
+/*
+  Miracle design tokens.
+
+  Everything derives from the logo: a black LED panel lit by warm ivory light
+  with cool steel blue bleeding in from the edges. The greys are deliberately
+  warm — a cold neutral grey would read as a generic dark theme and break the
+  temperature the mark establishes.
+*/
+@theme {
+  /* Surfaces, darkest to lightest */
+  --color-void: #000000;
+  --color-panel: #0a0b0d;
+  --color-raised: #121417;
+
+  /* Brand light */
+  --color-ivory: #f2ebdd;
+  --color-steel: #6e8ca8;
+  --color-slate: #2e3f52;
+
+  /* Text, warm-tinted */
+  --color-text: #f2efe9;
+  --color-muted: #9a968e;
+  --color-faint: #605d57;
+
+  /* Signage. Desaturated so they sit inside the palette rather than shouting. */
+  --color-gain: #6fd39b;
+  --color-loss: #e0564b;
+  --color-warn: #e8b44a;
+
+  --font-display: var(--font-outfit), system-ui, -apple-system, sans-serif;
+
+  --radius-panel: 14px;
+  --radius-control: 10px;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background: var(--color-void);
+    color: var(--color-text);
+    font-family: var(--font-display);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Numbers in tables must line up; the display face handles this well. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-steel);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
+}
+
+@layer utilities {
+  /*
+    The LED panel, rendered in CSS so it works with no JS and no video: a dot
+    grid multiplied over soft light blooms. The hero swaps in the Veo video on
+    top of this; if the video is blocked or motion is reduced, this remains.
+  */
+  .led-panel {
+    background-color: var(--color-void);
+    background-image:
+      radial-gradient(circle, rgba(0, 0, 0, 0) 38%, var(--color-void) 42%),
+      radial-gradient(
+        ellipse 70% 60% at 76% 16%,
+        rgba(242, 235, 221, 0.55),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 50% 70% at 2% 54%,
+        rgba(110, 140, 168, 0.45),
+        transparent 72%
+      ),
+      radial-gradient(
+        ellipse 45% 50% at 94% 92%,
+        rgba(46, 63, 82, 0.5),
+        transparent 70%
+      );
+    background-size:
+      7px 7px,
+      100% 100%,
+      100% 100%,
+      100% 100%;
+  }
+
+  /*
+    The same board, continued down the page — much dimmer than the hero, which
+    has to stay the brightest thing here. Each section positions its own bloom
+    via --bloom-x / --bloom-y, so scrolling reads as travelling along one panel.
+
+    Layer order matters: the dot mask is listed first so it sits on top and the
+    light shows *through* the grid. Put the bloom first and the dots vanish.
+
+    A second, optional source sits behind the first. It is off unless a section
+    gives it a colour, so every existing section is unchanged. It exists for
+    screens too wide to light from one corner: the app board, where the far
+    side would otherwise fall away into flat black.
+  */
+  .led-section {
+    position: relative;
+    background-color: var(--color-void);
+  }
+
+  .led-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      radial-gradient(circle, rgba(0, 0, 0, 0) 38%, var(--color-void) 42%),
+      radial-gradient(
+        ellipse 60% 70% at var(--bloom-x, 50%) var(--bloom-y, 50%),
+        rgba(242, 235, 221, 0.13),
+        transparent 70%
+      ),
+      radial-gradient(
+        ellipse 55% 60% at var(--bloom2-x, 50%) var(--bloom2-y, 50%),
+        var(--bloom2-color, transparent),
+        transparent 70%
+      );
+    background-size:
+      7px 7px,
+      100% 100%,
+      100% 100%;
+  }
+
+  .led-section > * {
+    position: relative;
+  }
+
+  /*
+    A row of LEDs used as a bar. Two layers share one grid so the lit dots land
+    exactly on the unlit ones: the track is sized to hold every dot, the lit
+    layer is clipped to a whole number of them. Drawn as gradients rather than
+    elements — eight assets at 24 dots would otherwise be 192 nodes.
+  */
+  .led-track,
+  .led-lit {
+    height: 7px;
+    background-size: 7px 7px;
+    background-position: left center;
+    background-repeat: repeat-x;
+  }
+
+  .led-track {
+    background-image: radial-gradient(
+      circle at center,
+      rgba(242, 235, 221, 0.13) 1.5px,
+      transparent 1.7px
+    );
+  }
+
+  /*
+    Colour comes from a variable so one utility covers ivory, gain and loss.
+    The default is the original ivory, so every existing bar is untouched.
+  */
+  .led-lit {
+    background-image: radial-gradient(
+      circle at center,
+      var(--led-lit-color, rgba(242, 235, 221, 0.92)) 1.5px,
+      transparent 1.7px
+    );
+  }
+
+  /*
+    A panel that catches the light, for use on the lit board.
+
+    Raised is *lighter* than the board behind it — a module sitting on an
+    illuminated surface picks up more light, not less. The hairline along the
+    top is that light landing on its edge.
+  */
+  .module {
+    position: relative;
+    background: var(--color-raised);
+    border: 1px solid rgba(242, 235, 221, 0.1);
+    border-radius: var(--radius-panel);
+  }
+
+  /*
+    Inset past the corner radius rather than rounded to match it: a 1px strip
+    cannot hold a 14px corner, and letting it run to the edge would poke out of
+    the rounded corners.
+  */
+  .module::before {
+    content: "";
+    position: absolute;
+    inset-inline: var(--radius-panel);
+    top: 0;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      to right,
+      transparent,
+      rgba(242, 235, 221, 0.35),
+      transparent
+    );
+  }
+
+  /*
+    A top rule that fades out, applied as a background so it needs no extra
+    element inside a <dl>. For sections that should stay quiet.
+  */
+  .rule-top-fade {
+    background-image: linear-gradient(
+      to right,
+      rgba(242, 235, 221, 0.32),
+      rgba(242, 235, 221, 0.03)
+    );
+    background-size: 100% 1px;
+    background-position: top left;
+    background-repeat: no-repeat;
+  }
+
+  /*
+    Ticker tape. The track holds two identical copies of the quotes and slides
+    by exactly one of them, so the loop has no seam. It lives in the hero,
+    which is the only part of the page allowed to move on its own.
+  */
+  @keyframes ticker-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .ticker-track {
+    animation: ticker-scroll 48s linear infinite;
+    will-change: transform;
+  }
+
+  /* Stops so people can actually read a quote, by pointer or by keyboard. */
+  .ticker:hover .ticker-track,
+  .ticker:focus-within .ticker-track {
+    animation-play-state: paused;
+  }
+
+  /* Softens both ends so quotes arrive and leave rather than popping. */
+  .ticker-fade {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 28px,
+      #000 calc(100% - 56px),
+      transparent
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 28px,
+      #000 calc(100% - 56px),
+      transparent
+    );
+  }
+
+  /*
+    A rule lifted straight from the contract. Set in mono and marked with a
+    rule down the side so it reads as quoted rather than written for the page.
+  */
+  .formula {
+    border-left: 1px solid rgba(242, 235, 221, 0.28);
+    background: rgba(242, 235, 221, 0.03);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  /* Keeps text legible over any frame of the hero video. */
+  .hero-scrim {
+    background: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.92) 0%,
+      rgba(0, 0, 0, 0.72) 42%,
+      rgba(0, 0, 0, 0.28) 100%
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  /*
+    The blanket rule above would leave the ticker snapping through its loop
+    instead of stopping. Kill the animation outright and let the strip scroll
+    by hand — more specific than `*`, so this wins whatever the order.
+  */
+  .ticker-track {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .ticker {
+    overflow-x: auto !important;
+  }
+}

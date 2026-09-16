@@ -1,0 +1,22 @@
+{
+  "name": "@miracle/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "abi": "forge build && node scripts/export-abi.mjs",
+    "deploy": "forge script script/Deploy.s.sol --rpc-url robinhood --broadcast --slow",
+    "season": "forge script script/CreateSeason.s.sol --rpc-url robinhood --broadcast --slow",
+    "keeper": "node --env-file-if-exists=.env --import tsx scripts/keeper.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@miracle/shared": "workspace:*",
+    "@types/node": "^20",
+    "tsx": "^4",
+    "typescript": "^5",
+    "viem": "^2.56.5"
+  }
+}
