@@ -5,9 +5,11 @@ import { DEFAULT_PAYOUT_BPS } from "./payouts";
  * on-chain — the single source for the launch countdown and the numbers shown
  * beside it.
  *
- * `opensAt` stays null until the owner announces a date. While it is null the
- * interface says the date is not announced; it never counts down to an
- * invented one. Change it here and nowhere else.
+ * `opensAt` is null until the owner announces a date, and while it is null the
+ * interface says so rather than counting down to an invented one. It now holds
+ * the moment season 1 actually opened on-chain, read back from the contract —
+ * the two must agree to the second, because the landing reads this to decide
+ * whether to say the season is open while the game itself follows the chain.
  *
  * The other fields are decided and match the defaults of
  * packages/contracts/script/CreateSeason.s.sol, which creates the season.
@@ -32,7 +34,7 @@ export interface SeasonAnnouncement {
 const DAY_SECONDS = 86_400;
 
 export const FIRST_SEASON: SeasonAnnouncement = {
-  opensAt: null,
+  opensAt: new Date(1789674471 * 1000),
   entryFee: 10_000_000_000_000_000n, // 0.01 ETH
   entryDurationSeconds: 3 * DAY_SECONDS,
   tradingDurationSeconds: 14 * DAY_SECONDS,

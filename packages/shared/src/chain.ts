@@ -65,13 +65,16 @@ const UNDEPLOYED: DeploymentAddresses = {
  * contract; the other slots stay empty. Testnet has no Chainlink feeds, so
  * nothing is deployed there.
  *
- * Mainnet stays empty until the first full season is deployed (see
- * FIRST_SEASON in launch.ts). The integration deployment used to wire the
- * real adapter is deliberately not listed here — its address is in
- * docs/CONTRACTS-DESIGN.md §10; point a local override at it instead.
+ * Mainnet holds the season 1 deployment, live since 2026-09-17. The earlier
+ * integration deployment is deliberately not listed here: it carries rehearsal
+ * seasons and no player should ever be pointed at it. Its address is in
+ * docs/CONTRACTS-DESIGN.md §10; point a local override at that one instead.
  */
 export const DEPLOYMENTS: Record<number, DeploymentAddresses> = {
-  [ROBINHOOD_MAINNET.id]: UNDEPLOYED,
+  [ROBINHOOD_MAINNET.id]: {
+    ...UNDEPLOYED,
+    game: "0x1b772a789515E5711FEd03CE0c155fb31F1a7C28",
+  },
   [ROBINHOOD_TESTNET.id]: UNDEPLOYED,
 };
 
